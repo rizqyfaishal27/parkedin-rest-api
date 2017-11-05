@@ -41,6 +41,7 @@
     "boilerplate"
   ],
   "dependencies": {
+    "bcrypt": "1.0.3",
     "bluebird": "3.4.6",
     "body-parser": "1.15.2",
     "compression": "1.6.2",
@@ -50,14 +51,19 @@
     "dotenv": "^4.0.0",
     "express": "4.14.0",
     "express-jwt": "5.1.0",
+    "express-rest-response": "1.2.0",
     "express-validation": "1.0.1",
     "express-winston": "2.1.2",
     "helmet": "3.1.0",
     "http-status": "^0.2.0",
     "joi": "10.0.6",
+    "joi-objectid": "2.0.0",
     "jsonwebtoken": "7.1.9",
+    "lodash": "4.17.4",
     "method-override": "^2.3.5",
+    "moment": "2.19.1",
     "mongoose": "4.7.4",
+    "mongoose-type-email": "1.0.5",
     "morgan": "1.7.0",
     "winston": "2.3.0"
   },

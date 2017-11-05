@@ -1,57 +1,46 @@
 import User from '../models/user.model';
 
-/**
- * Load user and append to req.
- */
-function load(req, res, next, id) {
+
+export const load = (req, res, next, id) => {
   User.get(id)
     .then((user) => {
-      req.user = user; // eslint-disable-line no-param-reassign
+      req.loadedUser = user; // eslint-disable-line no-param-reassign
       return next();
     })
-    .catch(e => next(e));
+    .catch(next);
 }
 
 /**
- * Get user
+ * Get singl user data
  * @returns {User}
  */
-function get(req, res) {
-  return res.json(req.user);
-}
+export const get = (req, res) => res.rest.success({ user: req.loadedUser.view() })
 
 /**
  * Create new user
- * @property {string} req.body.username - The username of user.
- * @property {string} req.body.mobileNumber - The mobileNumber of user.
+ * @property {string} req.body.fullName - The full name of user.
+ * @property {string} req.body.email - The email of user.
+ * @property {string} req.body.password - The pasword of user.
  * @returns {User}
  */
-function create(req, res, next) {
-  const user = new User({
-    username: req.body.username,
-    mobileNumber: req.body.mobileNumber
-  });
-
-  user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
-}
+export const create = (req, res, next) =>
+  User.create(req.body)
+    .then(user => user.view())
+    .then(user => res.rest.success({ user }))
+    .catch(next)
 
 /**
  * Update existing user
- * @property {string} req.body.username - The username of user.
- * @property {string} req.body.mobileNumber - The mobileNumber of user.
+ * @property {string} req.body.email - The email of user.
+ * @property {string} req.body.fullName - The full name of user.
+ * @property {string} req.body.phoneNumber - The phone number of user.
  * @returns {User}
  */
-function update(req, res, next) {
-  const user = req.user;
-  user.username = req.body.username;
-  user.mobileNumber = req.body.mobileNumber;
-
-  user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
-}
+export const update = (req, res, next) =>
+  req.loadedUser.set(req.body).save()
+    .then(savedUser => savedUser.view())
+    .then(user => res.rest.success({ user }))
+    .catch(next)
 
 /**
  * Get user list.
@@ -59,22 +48,19 @@ function update(req, res, next) {
  * @property {number} req.query.limit - Limit number of users to be returned.
  * @returns {User[]}
  */
-function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
+export const list = ({ query:{ limit = 50, skip = 0 }}, res, next) =>
   User.list({ limit, skip })
-    .then(users => res.json(users))
-    .catch(e => next(e));
-}
+    .then(users => users.map(user => user.view()))
+    .then(users => res.rest.success(users))
+    .catch(next);
 
 /**
  * Delete user.
  * @returns {User}
  */
-function remove(req, res, next) {
-  const user = req.user;
-  user.remove()
-    .then(deletedUser => res.json(deletedUser))
-    .catch(e => next(e));
-}
+export const remove = (req, res, next) =>
+  req.loadedUser.remove()
+    .then(removed => removed)
+    .then(res.rest.noContent())
+    .catch(next);
 
-export default { load, get, create, update, list, remove };

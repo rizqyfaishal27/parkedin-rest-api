@@ -9,9 +9,9 @@ import { env } from '../../config/config.js';
 require('mongoose-type-email');
 
 /**
- * User Schema
+ * Admin Schema
  */
-const UserSchema = new mongoose.Schema({
+const AdminSchema = new mongoose.Schema({
   email: {
     type: mongoose.SchemaTypes.Email,
     required: true,
@@ -25,24 +25,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  totalCurrentPoints: {
-    type: Number,
-    default: 0
-  },
-  totalCurrentBalance: {
-    type: Number,
-    default: 0,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
 });
-
 
 /**
  * Add your
@@ -51,10 +38,7 @@ const UserSchema = new mongoose.Schema({
  * - virtuals
  */
 
-
-
- UserSchema.pre('save', function(next) {
-  console.log(this);
+ AdminSchema.pre('save', function(next) {
   if(!this.isModified('password')) {
     return next();
   }
@@ -70,21 +54,17 @@ const UserSchema = new mongoose.Schema({
 /**
  * Methods
  */
-UserSchema.method({
+AdminSchema.method({
   view() {
     return {
       id: this.id,
       fullName: this.fullName,
       email: this.email,
-      totalCurrentBalance: this.totalCurrentBalance,
-      totalCurrentPoints: this.totalCurrentPoints,
-      phoneNumber: this.phoneNumber,
       createdAt: this.createdAt
     }
   },
+
   authenticate(password) {
-    console.log(password);
-    console.log(this.password);
     return bcrypt.compare(password, this.password)
       .then((valid) => valid ? this : false)
   }
@@ -93,18 +73,18 @@ UserSchema.method({
 /**
  * Statics
  */
-UserSchema.statics = {
+AdminSchema.statics = {
   /**
-   * Get user
-   * @param {ObjectId} id - The objectId of user.
-   * @returns {Promise<User, APIError>}
+   * Get admin
+   * @param {ObjectId} id - The objectId of admin.
+   * @returns {Promise<Admin, APIError>}
    */
   get(id) {
     return this.findById(id)
       .exec()
-      .then((user) => {
-        if (user) {
-          return user;
+      .then((admin) => {
+        if (admin) {
+          return admin;
         }
         const err = new APIError('No such user exists!', httpStatus.NOT_FOUND);
         return Promise.reject(err);
@@ -112,10 +92,10 @@ UserSchema.statics = {
   },
 
   /**
-   * List users in descending order of 'createdAt' timestamp.
-   * @param {number} skip - Number of users to be skipped.
-   * @param {number} limit - Limit number of users to be returned.
-   * @returns {Promise<User[]>}
+   * List admins in descending order of 'createdAt' timestamp.
+   * @param {number} skip - Number of admins to be skipped.
+   * @param {number} limit - Limit number of admins to be returned.
+   * @returns {Promise<Admin[]>}
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
@@ -130,4 +110,4 @@ UserSchema.statics = {
 /**
  * @typedef User
  */
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('Admin', AdminSchema);

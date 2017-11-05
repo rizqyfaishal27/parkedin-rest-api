@@ -9,15 +9,15 @@ import { env } from '../../config/config.js';
 require('mongoose-type-email');
 
 /**
- * User Schema
+ * Partner Schema
  */
-const UserSchema = new mongoose.Schema({
+const PartnerSchema = new mongoose.Schema({
   email: {
     type: mongoose.SchemaTypes.Email,
     required: true,
     unique: true,
   },
-  fullName: {
+  partnerName: {
     type: String,
     required: true
   },
@@ -25,24 +25,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  totalCurrentPoints: {
-    type: Number,
-    default: 0
+  buildings: {
+    type: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Building' }]
   },
-  totalCurrentBalance: {
-    type: Number,
-    default: 0,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
+  isAccepted: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
 });
-
 
 /**
  * Add your
@@ -51,10 +45,7 @@ const UserSchema = new mongoose.Schema({
  * - virtuals
  */
 
-
-
- UserSchema.pre('save', function(next) {
-  console.log(this);
+ PartnerSchema.pre('save', function(next) {
   if(!this.isModified('password')) {
     return next();
   }
@@ -70,21 +61,19 @@ const UserSchema = new mongoose.Schema({
 /**
  * Methods
  */
-UserSchema.method({
+PartnerSchema.method({
   view() {
     return {
       id: this.id,
-      fullName: this.fullName,
+      partnerName: this.partnerName,
       email: this.email,
-      totalCurrentBalance: this.totalCurrentBalance,
-      totalCurrentPoints: this.totalCurrentPoints,
-      phoneNumber: this.phoneNumber,
+      isAccepted: this.isAccepted,
+      buildings: this.buildings,
       createdAt: this.createdAt
     }
   },
+
   authenticate(password) {
-    console.log(password);
-    console.log(this.password);
     return bcrypt.compare(password, this.password)
       .then((valid) => valid ? this : false)
   }
@@ -93,18 +82,18 @@ UserSchema.method({
 /**
  * Statics
  */
-UserSchema.statics = {
+PartnerSchema.statics = {
   /**
-   * Get user
-   * @param {ObjectId} id - The objectId of user.
-   * @returns {Promise<User, APIError>}
+   * Get partner
+   * @param {ObjectId} id - The objectId of admin.
+   * @returns {Promise<Partner, APIError>}
    */
   get(id) {
     return this.findById(id)
       .exec()
-      .then((user) => {
-        if (user) {
-          return user;
+      .then((partner) => {
+        if (partner) {
+          return partner;
         }
         const err = new APIError('No such user exists!', httpStatus.NOT_FOUND);
         return Promise.reject(err);
@@ -112,10 +101,10 @@ UserSchema.statics = {
   },
 
   /**
-   * List users in descending order of 'createdAt' timestamp.
-   * @param {number} skip - Number of users to be skipped.
-   * @param {number} limit - Limit number of users to be returned.
-   * @returns {Promise<User[]>}
+   * List partners in descending order of 'createdAt' timestamp.
+   * @param {number} skip - Number of partners to be skipped.
+   * @param {number} limit - Limit number of partners to be returned.
+   * @returns {Promise<Partner[]>}
    */
   list({ skip = 0, limit = 50 } = {}) {
     return this.find()
@@ -128,6 +117,6 @@ UserSchema.statics = {
 
 
 /**
- * @typedef User
+ * @typedef Partner
  */
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('Partner', PartnerSchema);

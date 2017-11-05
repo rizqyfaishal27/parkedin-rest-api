@@ -9,6 +9,7 @@ import httpStatus from 'http-status';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
 import helmet from 'helmet';
+import restResponse from 'express-rest-response';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import config from './config';
@@ -27,6 +28,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compress());
 app.use(methodOverride());
+app.use(restResponse({
+  showStatusCode: true,  
+  showDefaultMessage: true  
+}));
 
 // secure apps by setting various HTTP headers
 app.use(helmet());

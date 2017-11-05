@@ -1,7 +1,7 @@
 import express from 'express';
 import validate from 'express-validation';
-import { login as loginValidation } from '../validations/auth_user.validation';
-import { login } from '../controllers/auth.controller';
+import { login as loginValidation } from '../validations/auth_partner.validation';
+import { login } from '../controllers/auth_partner.controller';
 
 const router = express.Router();
 
